@@ -1,0 +1,403 @@
+<!DOCTYPE HTML>
+<html lang="en-US" class="fade">
+<head>
+  <title>compileShell</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1274, user-scalable=no">
+  <link rel="stylesheet" href="themes/mozilla/styles/style.css">
+  <style type="text/css">
+
+  </style>
+</head>
+<body class="list">
+
+  <header class="caption">
+    <h1>compileShell</h1>
+    <p class="footer">Gary Kwong, <a href="mailto:gkw@mozilla.com">gkw@mozilla.com</a></p>
+  </header>
+
+  <div id="cover" class="slide"><div>
+    <section>
+      <header>
+        <h2>compileShell (JS fuzzing harness)</h2>
+      </header>
+      <footer class="byline">
+        Gary Kwong, Mozilla, Fuzzing Work Week, Mountain View, Aug 2014
+      </footer>
+    <footer class="notes">
+    </footer>
+    </section>
+  </div></div>
+
+  <div id="agenda" class="slide"><div>
+    <section>
+      <header>
+        <h2>Agenda</h2>
+      </header>
+      <ul>
+        <li>Overview</li>
+        <li>Developer relations</li>
+        <li>Internals</li>
+        <li>Start!</li>
+        <li>Problems faced</li>
+        <li>Demo</li>
+        <li>Questions and answers</li>
+      </ul>
+      <footer class="notes">
+      </footer>
+    </section>
+  </div></div>
+
+  <div id="overview" class="slide"><div>
+    <section>
+      <header>
+        <h2>Overview</h2>
+      </header>
+      <blockquote>
+        An automated fuzzing harness that supports multi-platform
+        <strong>environment preparation</strong>, build <strong>attainment</strong>,
+        <strong>fuzzing commencement</strong>
+        and post-issue-discovery <strong>reduction</strong> and <strong>bisection</strong>.
+      </blockquote>
+      <footer class="notes">
+        Specifically for SpiderMonkey shells, and the jsfunfuzz and compareJIT fuzzers.
+        Parts adapted for JSBugMon and other fuzzing harnesses.
+      </footer>
+    </section>
+  </div></div>
+
+  <div id="overview2" class="slide"><div>
+    <section>
+      <header>
+        <h2>Overview (cont'd)</h2>
+      </header>
+      <ul class="inner">
+        <li class="active">JS fuzzer automation</li>
+        <li>Language of choice: Bash/Python</li>
+        <li>Compiling, inspecting, flag-setting, start of fuzzing</li>
+        <li>Configs close to shipping binaries, w/special flags for fuzzing</li>
+        <li>Error detection, reduction, bisection</li>
+      </ul>
+      <footer class="notes">
+      </footer>
+    </section>
+  </div></div>
+
+  <div id="developer-relations" class="slide"><div>
+    <section>
+      <header>
+        <h2>Developer Relations</h2>
+      </header>
+      <ul>From us
+        <li>We file bugs, set needinfos</li>
+        <li>We fuzz their patches/new features</li>
+      </ul>
+      <ul>To us
+        <li>They create special debug/shell-only fuzzing flags</li>
+        <li>They ask for fuzzing through feedback flag</li>
+        <li>They fix bugs</li>
+      </ul>
+      Important <strong>knowledge transfer</strong> between developers and us.
+      <footer class="notes">
+      </footer>
+    </section>
+  </div></div>
+
+  <div id="buildOptions" class="slide"><div>
+    <section>
+      <header>
+        <h2>Set required build options</h2>
+      </header>
+      <ul>Build configuration
+        <li>Debug / optimized</li>
+        <li>32-bit / 64-bit</li>
+        <li>Deterministic / Valgrind / ASan</li>
+        <li>Miscellaneous, e.g. ARM-simulator</li>
+      </ul>
+      Randomisation, blacklisting
+      <footer class="notes">
+      </footer>
+    </section>
+  </div></div>
+
+  <div id="compileShell" class="slide"><div>
+    <section>
+      <header>
+        <h2>Compiling a shell</h2>
+      </header>
+      <ul>Backbone of harness
+        <li>Parameters from buildOptions: '--enable-arm-simulator'</li>
+        <li>Conditionals for different platforms: [if isWin]</li>
+        <li>Environment variables: 'gcc-4.7 -mfloat-abi=softfp -B/usr/lib/gcc/arm-linux-gnueabi/4.7'</li>
+      </ul>
+      <footer class="notes">
+      </footer>
+    </section>
+  </div></div>
+
+  <div id="inspectShell" class="slide"><div>
+    <section>
+      <header>
+        <h2>Inspecting the compiled shell</h2>
+      </header>
+      <ul>
+        <li>Did we compile as intended?</li>
+        <li>Double check via a shell function</li>
+        <ul>
+            <li>getBuildConfiguration()</li>
+        </ul>
+      </ul>
+      <footer class="notes">
+      </footer>
+    </section>
+  </div></div>
+
+  <div id="downloadBuild" class="slide"><div>
+    <section>
+      <header>
+        <h2>Download instead of compiling</h2>
+      </header>
+      <ul>Or choose to download
+        <li><a href="https://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/">Mozilla FTP</a></li>
+      </ul>
+      <footer class="notes">
+      </footer>
+    </section>
+  </div></div>
+
+  <div id="shellFlags" class="slide"><div>
+    <section>
+      <header>
+        <h2>shellFlags</h2>
+      </header>
+      <ul>Different flags for us to test
+        <li>--fuzzing-safe (always on by default)</li>
+        <li>--no-threads</li>
+        <li>--ion-eager</li>
+        <li>--ion-offthread-compile=[on|off]</li>
+        <li>--no-asmjs</li>
+        <li>Other cool flags, e.g. --ion-regalloc=backtracking</li>
+      </ul>
+      Randomised (usually)
+      <footer class="notes">
+      </footer>
+    </section>
+  </div></div>
+
+  <div id="start-automation" class="slide"><div>
+    <section>
+      <header>
+        <h2>Start!</h2>
+      </header>
+      <ul>Fuzzing commencement
+        <li>Merging different components</li>
+        <li>Parallelism</li>
+        <li>Looping</li>
+      </ul>
+      <footer class="notes">
+      </footer>
+    </section>
+  </div></div>
+
+  <div id="error-detection" class="slide"><div>
+    <section>
+      <header>
+        <h2>Error detection</h2>
+      </header>
+      <ul>Scripts that detect certain:
+        <li>Crashes</li>
+        <li>Output messages</li>
+        <li>Hangs</li>
+      </ul>
+      <ul class="inner">And they support:
+        <li class="active">Minimum interestingness levels</li>
+        <li>Timeouts</li>
+        <li>Ignoring of known bugs</li>
+        <li>Testing over a range of tries</li>
+      </ul>
+      <footer class="notes">
+      </footer>
+    </section>
+  </div></div>
+
+  <div id="debugger-scripts" class="slide"><div>
+    <section>
+      <header>
+        <h2>Debugger scripts</h2>
+      </header>
+      <ul>Scripts that support running of:
+        <li>cdb.exe (Windows), !exploitable</li>
+        <li>gdb (Linux)</li>
+        <li>lldb (Mac)</li>
+      </ul>
+      <ul class="inner">Extracted information:
+        <li class="active">Backtrace</li>
+        <li>Program counter</li>
+        <li>Registers</li>
+      </ul>
+      <footer class="notes">
+      </footer>
+    </section>
+  </div></div>
+
+  <div id="reduction" class="slide"><div>
+    <section>
+      <header>
+        <h2>Reduction</h2>
+      </header>
+      <a href="http://www.squarefree.com/2007/09/15/introducing-lithium-a-testcase-reduction-tool/">Lithium (line-based reducer)</a>
+      <ul class="inner">Reduction strategies:
+        <li class="active">Beautification</li>
+        <li>Brace-matching strategy</li>
+      </ul>
+      <footer class="notes">
+      </footer>
+    </section>
+  </div></div>
+
+  <div id="known-bug-list" class="slide"><div>
+    <section>
+      <header>
+        <h2>Lists of known bugs</h2>
+      </header>
+      <ul>Updated manually
+        <li>Known crashes (incl. ASan)</li>
+        <li>Known assertions</li>
+        <li>Valgrind suppressions</li>
+      </ul>
+      <ul>Updated automatically
+        <li>Machine-readable crash signature</li>
+      </ul>
+      Discovered issue is checked against these lists of known bugs
+      <footer class="notes">
+      </footer>
+    </section>
+  </div></div>
+
+  <div id="pinpoint-autoBisect" class="slide"><div>
+    <section>
+      <header>
+        <h2>autoBisect</h2>
+      </header>
+      <ul>pinpoint.py and autoBisect:
+        <li>Find the regressor</li>
+        <li>(using an earliest known working build)</li>
+      </ul>
+      autoBisect will be described in another presentation.
+      <footer class="notes">
+      </footer>
+    </section>
+  </div></div>
+
+  <div id="misc-scripts" class="slide"><div>
+    <section>
+      <header>
+        <h2>Miscellaneous scripts</h2>
+      </header>
+      <ul>Harness helpers
+        <li>hgCmds - helper functions involving Mercurial</li>
+        <li>subprocesses</li>
+      </ul>
+      <footer class="notes">
+      </footer>
+    </section>
+  </div></div>
+
+  <div id="reporting" class="slide"><div>
+    <section>
+      <header>
+        <h2>Issue reporting</h2>
+      </header>
+      <ul>
+        <li>Emails are sent</li>
+        <li>(Partially-automated) Bugzilla report preparation</li>
+        <li>No automated bug reporting (false positives)</li>
+      </ul>
+      <footer class="notes">
+      </footer>
+    </section>
+  </div></div>
+
+  <div id="problems-faced" class="slide"><div>
+    <section>
+      <header>
+        <h2>Problems faced</h2>
+      </header>
+      <ul>Platform-fun
+        <li>Windows-specific issues (software)</li>
+        <li>ARM (hardware)</li>
+      </ul>
+      <ul>Developer ignorance
+        <li>Can cause constant build breakage</li>
+        <li>We try to become their friends</li>
+        <li>"We cannot test what we cannot build."</li>
+      </ul>
+      <footer class="notes">
+      </footer>
+    </section>
+  </div></div>
+
+  <div id="open-source" class="slide"><div>
+    <section>
+      <header>
+        <h2>Open sourcing code</h2>
+      </header>
+      <blockquote>
+        Real soon...
+      </blockquote>
+      <footer class="notes">
+      </footer>
+    </section>
+  </div></div>
+
+  <div id="demo" class="slide"><div>
+    <section>
+      <header>
+        <h1>Demo</h1>
+      </header>
+      Because we like moving bits...
+      <footer class="notes">
+      </footer>
+    </section>
+  </div></div>
+
+  <div id="qanda" class="slide"><div>
+    <section>
+      <header>
+        <h2>Questions & Answers</h2>
+      </header>
+      <footer class="notes">
+      </footer>
+    </section>
+  </div></div>
+
+  <div id="thanks" class="slide"><div>
+    <section>
+      <header>
+        <h2>Thanks</h2>
+      </header>
+        <figure class="frame middle swing">
+        <img src="pictures/mozillaoverview/redpanda.jpg"
+             alt="Red panda (Firefox)">
+        </figure>
+      <ul class="oneline demourl">
+        <li>Gary Kwong</li>
+        <li><a href="mailto:gkw@mozilla.com">gkw@mozilla.com</a></li>
+      <br/>Thanks also to Jesse Ruderman, Christian Holler and other folks whom I missed
+      </ul>
+      <small class="credits">
+        <a href="http://www.flickr.com/photos/yortw/5798336827/">
+          Photo by Yortw
+        </a>
+      </small>
+    <footer class="notes">
+      Thanks for listening!
+    </footer>
+    </section>
+  </div></div>
+
+  <div class="progress"><div></div></div>
+  <script src="scripts/script.js"></script>
+  <!-- Copyright © 2010–2012 Vadim Makeev — pepelsbey.net -->
+</body>
+</html>
