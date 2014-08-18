@@ -138,7 +138,7 @@
   <div id="inspectShell" class="slide"><div>
     <section>
       <header>
-        <h2>Inspecting the compiled shell</h2>
+        <h2>Get a shell</h2>
       </header>
       <ul>
         <li>Did we compile as intended?</li>
@@ -147,17 +147,7 @@
             <li>getBuildConfiguration()</li>
         </ul>
       </ul>
-      <footer class="notes">
-      </footer>
-    </section>
-  </div></div>
-
-  <div id="downloadBuild" class="slide"><div>
-    <section>
-      <header>
-        <h2>Download instead of compiling</h2>
-      </header>
-      <ul>Or choose to download
+      <ul>Or choose to download instead
         <li><a href="https://ftp.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/">Mozilla FTP</a></li>
       </ul>
       <footer class="notes">
@@ -184,6 +174,21 @@
     </section>
   </div></div>
 
+  <div id="compareJIT" class="slide"><div>
+    <section>
+      <header>
+        <h2>compareJIT</h2>
+      </header>
+      <ul>Compares output between different flag sets
+        <li>Looks for mismatches, finds assertions/crashes</li>
+        <li>Based on --tbpl flags</li>
+        <li>Other common flag sets</li>
+      </ul>
+      <footer class="notes">
+      </footer>
+    </section>
+  </div></div>
+
   <div id="start-automation" class="slide"><div>
     <section>
       <header>
@@ -191,6 +196,7 @@
       </header>
       <ul>Fuzzing commencement
         <li>Merging different components</li>
+        <li>Fuzzing with Valgrind</li>
         <li>Parallelism</li>
         <li>Looping</li>
       </ul>
@@ -245,7 +251,10 @@
       <header>
         <h2>Reduction</h2>
       </header>
-      <a href="http://www.squarefree.com/2007/09/15/introducing-lithium-a-testcase-reduction-tool/">Lithium (line-based reducer)</a>
+      <ul>
+        <li><a href="http://www.squarefree.com/2007/09/15/introducing-lithium-a-testcase-reduction-tool/">Lithium (line-based reducer)</a></li>
+        <li><a href="https://github.com/csmith-project/creduce">creduce</a></li>
+      </ul>
       <ul class="inner">Reduction strategies:
         <li class="active">Beautification</li>
         <li>Brace-matching strategy</li>
